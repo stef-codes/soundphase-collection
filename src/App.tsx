@@ -1,49 +1,33 @@
-import { ConnectWallet } from "@thirdweb-dev/react";
+import {ConnectWallet, ThirdwebNftMedia, useContract, useContractMetadata, useNFTs } from "@thirdweb-dev/react";
+import { loadavg } from "os";
 import "./styles/Home.css";
 
 export default function Home() {
+  const {contract} = useContract("0x67a52099faf7d21f6eADC49f425a8668720352EE"); 
+  const {data: nfts, isLoading} = useNFTs(contract); 
+  const {data: metadata, isLoading: loadingMetadata} = useContractMetadata(contract)
+
   return (
-    <div className="container">
-      <main className="main">
-        <h1 className="title">
-          Welcome to <a href="https://thirdweb.com/">thirdweb</a>!
-        </h1>
+    <main className="container">
+      {!loadingMetadata &&
+        <header className="heading">
+          <div>
+            <img src={metadata?.image} alt="music NFT Collection Thumbnail" />
+            <h1>{metadata?.name}</h1>
+          </div>
+        </header>
+      }
+      {!isLoading?
+      (<div className="gallery">
+        {nfts?.map(e =>
+          <div className="card">
+            <ThirdwebNftMedia metadata={e.metadata} />
+          </div>
 
-        <p className="description">
-          Get started by configuring your desired network in{" "}
-          <code className="code">src/index.tsx</code>, then modify the{" "}
-          <code className="code">src/App.tsx</code> file!
-        </p>
-
-        <div className="connect">
-          <ConnectWallet />
-        </div>
-
-        <div className="grid">
-          <a href="https://portal.thirdweb.com/" className="card">
-            <h2>Portal &rarr;</h2>
-            <p>
-              Guides, references and resources that will help you build with
-              thirdweb.
-            </p>
-          </a>
-
-          <a href="https://thirdweb.com/dashboard" className="card">
-            <h2>Dashboard &rarr;</h2>
-            <p>
-              Deploy, configure and manage your smart contracts from the
-              dashboard.
-            </p>
-          </a>
-
-          <a href="https://portal.thirdweb.com/templates" className="card">
-            <h2>Templates &rarr;</h2>
-            <p>
-              Discover and clone template projects showcasing thirdweb features.
-            </p>
-          </a>
-        </div>
-      </main>
-    </div>
+        )}
+      </div>)
+      : (<p className="loading">Loading...</p>)
+      }
+    </main>
   );
 }
